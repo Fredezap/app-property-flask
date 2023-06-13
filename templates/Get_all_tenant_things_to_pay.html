@@ -1,0 +1,251 @@
+<!doctype html>
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Import bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity=
+  "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+  crossorigin="anonymous">
+</script>      
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script>    
+{% extends 'base.html' %}
+{% block title %}
+Todas las propiedades
+{% endblock %}
+</head>
+{% block body %}
+
+  {% if result %}
+    <div id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+ {% if result2 == "Inactivo" %}
+ <div id="AlertMio" class="alert alert-primary" role="alert">
+  <strong>{{alert}}<br><br>
+    <form method="POST" action="{{url_for('AddOrDeleteTenantThingToPay')}}">
+      <input name="id_tenant_thing_to_pay_recover" value="{{check.id_tenant_thing_to_pay}}" type="hidden">
+      <input style="margin-right: 100px;" class="btn btn-primary btn-lg" type="submit" value="SI">
+    </form>
+    <a href="{{url_for('AddOrDeleteTenantThingToPay')}}" style="cursor: pointer"><button style="margin-left: 100px; margin-top: -75px;" type="button" class="btn btn-secondary btn-lg">NO</button></a>
+  </strong>
+</div>
+{% endif %}
+
+{% if things_to_pay %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info">SERVICIOS QUE PUEDE PAGAR UN INQUILINO
+  <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTenantThingToPay">AGREGAR SERVICIO</button>
+</div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col"> NOMBRE DEL SERVICIO </th>
+      <th scope="col"> ESTADO </th>
+      <th scope="col"> MAS INFO</th>
+      <th scope="col"> EDITAR </th>
+    </tr>
+  </thead>
+  {% for thing in things_to_pay %}
+  <tbody id="myTable">
+    <tr>
+      <th scope="row"> {{ thing.name_of_thing }} </th>
+      {% if thing.still_exist == 1 %}
+      <th scope="row"><button data-id="{{thing}}" id="{{thing.id_tenant_thing_to_pay}}" type="button" class="btn allbuttons btn-primary" data-toggle="modal" data-target="#TenantThingToPayDelete">Existente/Eliminar?</button></th>
+      {% else %} 
+      <th scope="row"><button data-id="{{thing}}" id="{{thing.id_tenant_thing_to_pay}}" type="button" class="btn allbuttons btn-danger" data-toggle="modal" data-target="#TenantThingToPayRecover">Eliminado/Recuperar?</th>
+        {% endif %}
+        <th scope="row"><button data-id="{{thing}}" id="{{thing.id_tenant_thing_to_pay}}" type="button" class="btn allbuttons btn-info" data-toggle="modal" data-target="#ModalMoreInfo" ><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+        <th scope="row"><button data-id="{{thing}}" id="{{thing.id_tenant_thing_to_pay}}" type="button" class="btn allbuttons btn-warning" data-toggle="modal" data-target="#TenantThingToPayEditService"><i class="fa fa-edit" style="font-size:24px"></i></button></th>
+      </tbody>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% if things_to_pay == [] %}
+    <div id=tableHead class="alert alert-success"> Aun no has agregado ningun servicio para inquilinos
+      <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTenantThingToPay">AGREGAR SERVICIO</button>
+    </div>
+    {% endif %}
+
+    <div class="modal fade bd-example-modal-lg" id="TenantThingToPayEditService" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">EDITAR SERVICIO</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col" style="text-align: center;">
+                  <form method="POST" action="{{url_for('AddOrDeleteTenantThingToPay')}}">
+                    <li><input id="editServiceTenantId" name="editServiceTenantId" type="hidden"></li>
+                    <li>Nombre del servicio</li>
+                    <li><input id="serviceNameTenant" name="serviceNameTenant" required></li>
+                    <li>Descripcion</li>
+                    <li><input id="serviceDescriptionTenant" name="serviceDescriptionTenant"></li>
+                  </div>
+                  <div class="modal-footer">
+                    <input style="margin-right: 480px; margin-top: 20px;" class="btn btn-primary" type="submit" id="send-signup" name="signup" value="Modificar"/>
+                  </form>
+                  <button style="margin-right: 50px; margin-top: 20px" type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL FOR UPDATE STILL EXIST (DELETE) VALUE IN TENANT THING TO PAY TABLE -->
+    <div class="modal" id="TenantThingToPayDelete" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Eliminar servicio</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" action="{{url_for('AddOrDeleteTenantThingToPay')}}">
+              <p>Estas seguro que queres eliminar este servicio?</p>
+            </div>
+            <div class="modal-footer">
+              <li><input id="id_tenant_thing_to_pay_delete" name="id_tenant_thing_to_pay_delete" type="hidden"></li>
+              <input value="SI" class="btn btn-primary" type="submit">
+            </form>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL FOR UPDATE STILL EXIST (RECOVER) VALUE IN TENANT THING TO PAY TABLE -->
+    <div class="modal" id="TenantThingToPayRecover" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Recuperar servicio</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" action="{{url_for('AddOrDeleteTenantThingToPay')}}">
+              <p>Estas seguro que queres recuperar este servicio?</p>
+            </div>
+            <div class="modal-footer">
+              <li><input type="hidden" id="id_tenant_thing_to_pay_recover" name="id_tenant_thing_to_pay_recover"></li>
+              <input value="SI" class="btn btn-primary" type="submit">
+            </form>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL FOR ADDING TENANT THING TO PAY -->
+    <div class="modal fade bd-example-modal-lg" id="AddTenantThingToPay" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">INGRESA NUEVA PERSONA</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col" style="text-align: center;">
+                  <form method="POST" action="{{url_for('AddOrDeleteTenantThingToPay')}}">
+                    <li>Nombre servicio</li>
+                    <li><input name="name_of_thing" placeholder="Nombre servicio" required></li>
+                    <li>Descripcion</li>
+                    <li><input name="description" placeholder="Descripcion"></li>
+                  </div>
+                  <div class="modal-footer">
+                    <input style="margin-right: 530px; margin-top: 20px;" class="btn btn-primary" type="submit" id="send-signup" name="signup" value="Agregar"/>
+                  </form>
+                  <button style="margin-right: 40px; margin-top: -50px" type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL THAT SHOWS MORE INFO OF THING TO PAY -->
+    <div class="modal fade bd-example-modal-lg" id="ModalMoreInfo" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">INFORMACION ADICIONAL</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <li>Nombre del servicio<p id="name_of_thing"></p></li>
+                  <li>Descripcion<p id="description"></p></li>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">       
+      $(".allbuttons").click(function () {
+        var id = $(this).attr('id');
+        var requiredData = document.getElementById(id).getAttribute("data-id")
+        var tenant = requiredData.replace(/'/g,'"')
+        var object = JSON.parse(tenant)
+        console.log(object.id_tenant_thing_to_pay)
+        $("#TenantThingToPayDelete #id_tenant_thing_to_pay_delete").val(object.id_tenant_thing_to_pay)
+        $("#TenantThingToPayRecover #id_tenant_thing_to_pay_recover").val(object.id_tenant_thing_to_pay)
+        $("#ModalMoreInfo #name_of_thing").html(object.name_of_thing)
+        $("#ModalMoreInfo #description").html(object.description)
+        $("#TenantThingToPayEditService #editServiceTenantId").val(object.id_tenant_thing_to_pay)
+        $("#TenantThingToPayEditService #serviceNameTenant").val(object.name_of_thing)
+        $("#TenantThingToPayEditService #serviceDescriptionTenant").val(object.description)    
+      });
+
+      $(document).ready(function(){
+        $("#myInput").on("keyup", function() {
+          var value = $(this).val().toLowerCase();
+          $("#myTable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+          });
+        });
+      });
+
+        $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+    </script>
+{% endblock %}

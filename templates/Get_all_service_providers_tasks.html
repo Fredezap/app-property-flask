@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Import jquery cdn -->
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script>
+</head>
+{% extends 'base.html' %}
+{% block title %}
+Todas las tareas prestadores de servicio
+{% endblock %}
+{% block body %}
+<!-- TABLE FOR SERVICE PROVIDER TASKS -->
+{% if result %}
+    <div id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info">TAREAS PRESTADORES DE SERVICIO
+  <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTaskServiceProvider" >AGREGAR TAREA</button></th>
+</div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col"> SERVICIO </th>
+      <th scope="col"> NOMBRE Y APELLIDO </th>
+      <th scope="col"> DIRECCION A DONDE <br> A REALIZAR SERVICIO</th>    
+      <th scope="col"> TAREA ASIGNADA <br> / NO ASIGNADA </th>
+      <th scope="col"> PAGO </th>
+    </tr>
+  </thead>
+  {% for task in All_tasks_service_providers %}
+  <tbody id="ServiceProvidersTable">
+    <tr>
+      <th scope="row"> {{ task.service_name }}</th>
+      {% if task.name == None %}
+      <th scope="row"> - </th>
+      {% else %}
+      <th scope="row"> {{ task.name }} {{ task.surname }} </th>
+      {% endif %}
+      <th scope="row"> {{ task.street }} {{ task.number }}, {{ task.state }} </th>
+      {% if task.id_is_service_provider == None %}
+      <th scope="row">
+        <form method="POST" action="{{url_for('Assign_service_provider')}}">
+          <li><input name="id_grant_of_service_task2" value="{{task.id_grant_of_service}}" type="hidden"/></li>
+          <li><input name="id_service_task2" value="{{task.id_service}}" type="hidden"/></li>
+          <input class="btn btn-info" type="submit" name="signup" value="Asignar tarea"/>
+        </form>
+      </th>
+      {% else %}
+      <th scope="row"><button data-id="{{task}}" id="{{task.id_grant_of_service}}" type="button" class="btn btnInfo btn-success" data-toggle="modal" data-target="#ModalInfoServiceProvider" >Ya asignada</button></th>
+      {% endif %}
+      {% if task.payment_date == '-' %}
+      <th scope="row">
+        <form method="POST" action="{{url_for('End_task')}}">
+          <li><input name="id_grant_of_service_task4" value="{{task.id_grant_of_service}}" type="hidden"></li>
+          <input class="btn btn-warning" type="submit" name="signup" value="Pendiente/Pagar"/>
+        </form>
+      </th>
+      {% else %}
+      <th scope="row">
+       <button data-id="{{task}}" id="{{task.id_grant_of_service}}" type="button" class="btn btnInfo btn-success" data-toggle="modal" data-target="#ModalPaymentDone">Realizado/Detalle</button>
+       {% endif %}
+     </tr>    
+   </tbody>
+   {% endfor %}
+ </table>
+ {% if All_tasks_service_providers == [] %}
+ <div id=tableHead class="alert alert-success"> No hay tareas pendientes </div>
+ {% endif %} 
+
+ <!-- Modal Add Task Service Provider -->
+ <div class="modal fade bd-example-modal-xl" id="AddTaskServiceProvider" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">INGRESAR EL DETALLE DE LA TAREA A ASIGNAR</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <form class="formSelect" method="POST" action="{{url_for('Get_all_service_providers_tasks')}}">
+                <li>Elegi un servicio</li>
+                {% if All_services == [] %}
+                <h5>No hay servicios disponibles</h5>
+                {% else %}
+                <select class="select" style="height:45px" name="AddTaskGetIdService" required>
+                  {% for service in All_services %}
+                  <option name="id_service" value="{{service.id_service}}">{{service.service_name}}</option>
+                  {% endfor %}
+                </select>
+                {% endif %}
+                <br><br><br>
+                <li>Elegi una propiedad</li>
+                {% if All_propertys == [] %}
+            <h5>No hay propiedades disponibles</h5>
+            {% else %}
+                
+                <!-- ACTIVAR UN BUSCADOR -->
+                <!-- <input class="form-control" id="ModalAddTask" type="text" placeholder="Buscar.."> -->
+                <select class="select" style="height:45px" name="AddTaskGetIdProperty" required>
+                  {% for property in All_propertys %}
+                  <option name="id_property" value="{{property.id_property}}">{{property.street}} {{property.number}}, {{property.state}} --> Nomenclarutra: {{property.nomenclatura}}</option>
+                  {% endfor %}
+                  {% endif %}
+                </select>
+                <input style="margin-left: 20px; margin-top: 100px;" name="AddTaskServiceprovidercbu" placeholder="CBU">
+                <input name="AddTaskServiceproviderAmount" placeholder="Monto">
+                <input name="AddTaskServiceproviderDetail" placeholder="Detalle">
+                <div class="modal-footer">
+                  <input id="AddTaskServiceProviderAcceptButton" style="margin-right: 550px;" value="ACEPTAR" class="btn btn-info active" type="submit">
+                </form>    
+                <button style="margin-top: -40px" type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <a href="{{url_for('Add_Service')}}"><button style="margin-top: 55px" class="btn btn-info active">AGREGAR SERVICIO</button></a>
+              <a href="{{url_for('Add_property')}}"><button style="margin-top: 160px" class="btn btn-info active">AGREGAR PROPIEDAD</button></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Info service provider -->
+<div class="modal fade bd-example-modal-lg" id="ModalInfoServiceProvider" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">DETALLES TAREA</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS DEL PROVEEDOR DEL SERVICIO</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Servicio que presta<p id="service_name"></p></li>
+              <li>Description<p id="description"></p></li>
+              <li>Matricula<p id="registration_number"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>Dni<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS DE LA PROPIEDAD A REALIZAR SERVICIO</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal_code"></p></li>
+            </div>
+            <div class="modal-footer">
+              <form method="POST" action="{{url_for('Get_all_service_providers_tasks')}}">
+                <li><input name="id_grant_of_service_task2" id="id_grant_of_service" type="hidden"/></li>
+                <li><input name="id_is_service_provider2" value="None" type="hidden"/></li>
+                <input id="ModalInfoCancellButton" class="btn btn-danger" type="submit" name="signup" value="Dejar de asignar tarea a esta persona"/>
+              </form>
+              <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Info Payment Service Providers -->
+<div class="modal fade bd-example-modal-lg" id="ModalPaymentDone" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <h5 style="text-align: center;">DETALLES DEL PAGO</h5>
+                <br>
+                <li>Detalle<p id="detail"></p></li>
+                <li>cbu<p id="cbu"></p></li>
+                <li>Monto<p id="amount"></p></li>
+                <li>Fecha<p id="payment_date"></p></li>
+              </div>
+              <div class="modal-footer">
+                <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+ $(".btnInfo").click(function () {
+  var id = $(this).attr('id');
+  var requiredData = document.getElementById(id).getAttribute("data-id")
+  var tenant1 = requiredData.replace(/'/g,'"')
+  var tenant2 = tenant1.replace(/None/g,'"-"')
+  var object = JSON.parse(tenant2)
+  console.log(object.registration_number)
+  $("#ModalInfoServiceProvider #name").html(object.name)
+  $("#ModalInfoServiceProvider #surname").html(object.surname)
+  $("#ModalInfoServiceProvider #cellphone").html(object.cellphone)
+  $("#ModalInfoServiceProvider #mail").html(object.mail)
+  $("#ModalInfoServiceProvider #address").html(object.address)
+  $("#ModalInfoServiceProvider #dni").html(object.dni)
+  $("#ModalInfoServiceProvider #description").html(object.description)
+  $("#ModalInfoServiceProvider #nomenclatura").html(object.nomenclatura)
+  $("#ModalInfoServiceProvider #city").html(object.city)
+  $("#ModalInfoServiceProvider #state").html(object.state)
+  $("#ModalInfoServiceProvider #neighborhood").html(object.neighborhood)
+  $("#ModalInfoServiceProvider #street").html(object.street)
+  $("#ModalInfoServiceProvider #number").html(object.number)
+  $("#ModalInfoServiceProvider #floor").html(object.floor)
+  $("#ModalInfoServiceProvider #postal_code").html(object.postal_code)
+  $("#ModalInfoServiceProvider #id_grant_of_service").val(object.id_grant_of_service)
+  $("#ModalInfoServiceProvider #registration_number").html(object.registration_number)
+  $("#ModalPaymentDone #service_name").html(object.name_of_thing)
+  $("#ModalPaymentDone #detail").html(object.detail)
+  $("#ModalPaymentDone #cbu").html(object.cbu)
+  $("#ModalPaymentDone #amount").html(object.amount)
+  $("#ModalPaymentDone #payment_date").html(object.payment_date)
+});
+
+ $(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#TenantTasksTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+      $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+</script>
+{% endblock %}

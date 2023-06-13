@@ -1,0 +1,120 @@
+<!doctype html>
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Import bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity=
+  "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+  crossorigin="anonymous">
+</script>      
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script>    
+<title>
+  Agregar un servicio a pagar
+</title>
+</head>
+<body class="otherBodys2">
+  {% if result %}
+    <div id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+ {% if result2 %}
+ <div id="AlertMio" class="alert alert-primary" role="alert">
+  <strong>{{result2}}<br><br>
+    <form method="POST" action="{{url_for('Add_or_delete_tenant_thing_to_pay')}}">
+      <input name="id_tenant_thing_to_pay_recover" value="{{check.id_tenant_thing_to_pay}}" type="hidden">
+      <input style="margin-right: 100px;" class="btn btn-primary btn-lg" type="submit" value="SI">
+    </form>
+    <a href="{{url_for('Add_or_delete_tenant_thing_to_pay')}}" style="cursor: pointer"><button style="margin-left: 100px; margin-top: -75px;" type="button" class="btn btn-secondary btn-lg">NO</button></a>
+  </strong>
+</div>
+{% endif %}
+
+{% if all_tenant_things_to_pay %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info">SERVICIOS QUE PUEDE PAGAR UN INQUILINO
+  <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTenantThingToPay">AGREGAR SERVICIO</button>
+</div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col"> NOMBRE DEL SERVICIO </th>
+      <th scope="col"> DESCRIPCION </th>
+    </tr>
+  </thead>
+  {% for thing in all_tenant_things_to_pay %}
+  <tbody id="myTable">
+      {% if thing.still_exist == 1 %}
+      <th scope="row"> {{ thing.name_of_thing }} </th>
+      <th scope="row"> {{ thing.description }} </th>
+      {% endif %}
+      </tbody>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% if all_tenant_things_to_pay == [] %}
+    <div id=tableHead class="alert alert-success"> Aun no has agregado ningun servicio para inquilinos
+      <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTenantThingToPay">AGREGAR SERVICIO</button>
+    </div>
+    {% endif %}
+
+    <!-- MODAL FOR ADDING TENANT THING TO PAY -->
+    <div class="modal fade bd-example-modal-lg" id="AddTenantThingToPay" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">INGRESA NUEVA PERSONA</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col" style="text-align: center;">
+                  <form method="POST" action="{{url_for('Add_or_delete_tenant_thing_to_pay')}}">
+                    <li>Nombre servicio</li>
+                    <li><input name="new_service_name" placeholder="Nombre servicio" required></li>
+                    <li>Descripcion</li>
+                    <li><input name="description" placeholder="Descripcion"></li>
+                  </div>
+                  <div class="modal-footer">
+                    <input style="margin-right: 530px; margin-top: 20px;" class="btn btn-primary" type="submit" id="send-signup" name="signup" value="Agregar"/>
+                  </form>
+                  <button style="margin-right: 40px; margin-top: -50px" type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">       
+      $(document).ready(function(){
+        $("#myInput").on("keyup", function() {
+          var value = $(this).val().toLowerCase();
+          $("#myTable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+          });
+        });
+      });
+
+             $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+    </script>
+  </body>

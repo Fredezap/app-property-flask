@@ -1,0 +1,218 @@
+<!doctype html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+    <!-- icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Import bootstrap -->
+</script>      
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script> 
+</head>
+{% extends 'base.html' %}
+{% block title %}
+Todos los prestadores de servicio
+{% endblock %}
+{% block body %}
+{% if result %}
+<div id="myAlert" class="alert alert-primary" role="alert">
+  <strong>{{result}}</strong>
+</div>
+{% endif %}
+{% if result2 %}
+<div id="AlertMio" class="alert alert-primary" role="alert">
+  <strong>
+    {{result2}}
+    <form method="POST" action="{{url_for('Get_all_service_providers')}}">
+      <input id="AddTask" name="id_is_service_provider_recover" value="{{resultado}}" type="hidden" >
+      <input type="submit" value="SI" class="btn btn-secondary btn-lg">
+    </form>
+    <a href="{{url_for('Get_all_service_providers')}}" style="cursor: pointer"><button type="button" class="btn btn-secondary btn-lg">NO</button></a>
+  </strong>
+</div>
+{% endif %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<form class="formSelect" method="POST" action="{{url_for('AddOrDeletePerson')}}">
+<div id=tableHead class="alert alert-info"> PRESTADORES DE SERVICIO 
+      <input value="addServiceProvider" name="addServiceProvider" type="hidden">
+        <input id="AddTask" class="btn btn-secondary btn-lg" value="AGREGAR" type="submit">
+         <a id="AddTask" href="{{url_for('Get_all_service_providers_deleted')}}" style="cursor: pointer; margin-right: 20px"><button type="button" class="btn btn-dark btn-lg">RECUPERAR</button></a>
+</div>
+</form>
+<table id="myTable" class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col"> NOMBRE Y APELLIDO </th>
+      <th scope="col"> SERVICIO QUE PRESTA </th>
+      <th scope="col"> MATRICULA </th>
+      <th scope="col"> MAS INFO </th>
+      <th scope="col"> ELIMINAR </th>
+    </tr>
+  </thead>
+  {% for service_provider in current_service_providers %}
+  {% if service_provider.still_working == 1 %}
+  <tbody>
+    <tr>
+      <th scope="row"> {{ service_provider.name }} {{ service_provider.surname }} </th>
+      <th scope="row"> {{ service_provider.service_name }} </th>
+            <th scope="row"><button data-id="{{service_provider}}" id="{{service_provider.id_is_service_provider}}" type="button" class="btn btnAddRegistrationNumber btn-light" data-toggle="modal" data-target="#ModalAddRegistrationNumber">{{ service_provider.registration_number }}</button></th>
+      <th scope="row"><button data-id="{{service_provider}}" id="{{service_provider.id_is_service_provider}}" type="button" class="btn btnInfoServiceProvider btn-info" data-toggle="modal" data-target="#ModalInfoServiceProvider"><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+      <th scope="row"><button data-id="{{service_provider}}" id="{{service_provider.id_is_service_provider}}" type="button" class="btn deleteServiceProvider btn-danger" data-toggle="modal" data-target="#ModalDeleteServiceProvider" ><i class="fa fa-trash" style="font-size:24px"></i></button></th>
+    </tr>
+  </tbody>
+  {% endif %}
+  {% endfor %}
+</table>
+{% if current_service_providers == [] %}
+<div id=tableHead class="alert alert-success"> No has cargado ningun prestador de servicio aun </div>
+{% endif %} 
+
+<!-- MODAL FOR UPDATE STILL WORKING (DELETE) VALUE IN SERVICE PROVICER TABLE -->
+<div class="modal" id="ModalDeleteServiceProvider" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Eliminar registro propietario/propiedad</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{url_for('Get_all_service_providers')}}">
+          <p>Estas seguro que queres eliminar este registro?</p>
+        </div>
+        <div class="modal-footer">
+          <li><input id="id_is_service_provider_delete" name="id_is_service_provider_delete" type="hidden"></li>
+          <input value="SI" class="btn btn-primary" type="submit">
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ModalMoreInfo service providers -->
+<!-- Modal Info service provider -->
+<div class="modal fade bd-example-modal-lg" id="ModalInfoServiceProvider" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">MAS INFORMACION</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS DEL PROVEEDOR DEL SERVICIO</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>Dni<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS DEL SERVICIO QUE PRESTA</h5>
+              <br>
+              <li>Servicio que presta<p id="service_name"></p></li>
+              <li>Description<p id="description"></p></li>
+              <li>Matricula<p id="registration_number"></p></li>
+            </div>
+            <div class="modal-footer">
+              <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for service providers -->
+<div class="modal fade" id="ModalAddRegistrationNumber" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Modificar matricula</h5>
+      </div>
+      <div class="modal-body">
+      <form method="POST" action="{{url_for('Get_all_service_providers')}}">
+        <input style="text-align:center;" name="registration_number" placeholder="Matricula">
+      </div>
+      <div class="modal-footer">
+        <input id="id_is_service_provider_registration_number" name="IdPersonIsServiceProviderRegistrationNumber" value="{{id_is_service_provider_registration_number}}" type="hidden">
+        <input class="btn btn-primary" type="submit" value="Modificar"/>
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+      </div>
+   </div>
+  </div>
+ </div>
+
+<script type="text/javascript">       
+  $(".btnInfoServiceProvider").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant1 = requiredData.replace(/'/g,'"')
+    var tenant2 = tenant1.replace(/None/g,'"-"')
+    var object = JSON.parse(tenant2)
+    $(".modal #name").html(object.name)
+    $(".modal #surname").html(object.surname)
+    $(".modal #cellphone").html(object.cellphone)
+    $(".modal #mail").html(object.mail)
+    $(".modal #address").html(object.address)
+    $(".modal #dni").html(object.dni)
+    $(".modal #service_name").html(object.service_name)
+    $(".modal #description").html(object.description)
+    $(".modal #registration_number").html(object.registration_number)
+  });
+
+  $(".deleteServiceProvider").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    $("#ModalDeleteServiceProvider #id_is_service_provider_delete").val(object.id_is_service_provider)
+  });
+
+  $(".btnAddRegistrationNumber").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    $("#ModalAddRegistrationNumber #id_is_service_provider_registration_number").val(object.id_is_service_provider)
+  });
+    
+
+  $(document).ready(function(){
+    $("#myInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#myTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+
+  $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Import jquery cdn -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity=
+  "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+  crossorigin="anonymous">
+</script>      
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script>
+</head>
+{% extends 'base.html' %}
+{% block title %}
+Home page
+{% endblock %}
+{% block body %}
+ {% if result %}
+    <div id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+  {% if result2 %}
+  <div id="AlertMio" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result2}}</strong><br><br>
+      <form method="POST" action="{{url_for('Get_all_people')}}">
+        <input name="RecoverPersonByDni" value="{{dni}}" type="hidden">
+        <input style="margin-right: 100px;" class="btn btn-primary btn-lg" type="submit" value="SI">
+      </form>
+   <form method="POST" action="{{url_for('Get_all_people')}}">
+        <input style="margin-left: 100px; margin-top: -75px;" class="btn btn-secondary btn-lg" type="submit" value="NO">
+    </form>
+  </div>
+  {% endif %}
+   {% if result3 %}
+    <div id="myAlert2" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result3}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+
+
+<!------------ TABLE FOR ALL PEOPLE -------------->
+
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info">TODAS LAS PERSONAS</div>
+
+<table class="table table-light" style="align-items: center; text-align: center">
+<thead class="table-dark">
+<tr class="ver">
+  <th scope="col" style="vertical-align: middle;"> NOMBRE </th>
+  <th scope="col" style="vertical-align: middle;"> APELLIDO </th>
+  <th scope="col" style="vertical-align: middle;"> TELEFONO </th>
+  <th scope="col" style="vertical-align: middle;"> MAIL </th>
+  <th scope="col" style="vertical-align: middle;"> DIREECION </th>
+  <th scope="col" style="vertical-align: middle;"> DNI </th>
+  <th scope="col" style="vertical-align: middle;"> ESTADO </th> 
+  <th scope="col"> EDITAR <br> PERSONA </th>
+</tr>
+</thead>
+{% if all_people %}
+{% for person in all_people %}
+<tbody id="ServiceProvidersTable">
+<tr>
+  <th scope="row"> {{ person.name }} </th>
+  <th scope="row"> {{ person.surname}} </th>
+  <th scope="row"> {{ person.cellphone }} </th>
+  <th scope="row"> {{ person.mail }} </th>
+  <th scope="row"> {{ person.address }} </th>
+  <th scope="row"> {{ person.dni }} </th>
+  {% if person.already_exist == 1 %}
+  <th scope="row"><button data-id="{{person}}" id="{{person.id_person}}" type="button" class="btn allbuttons btn-primary" data-toggle="modal" data-target="#DeletePerson">Existente/Eliminar?</button></th>
+  {% else %} 
+  <th scope="row"><button data-id="{{person}}" id="{{person.id_person}}" type="button" class="btn allbuttons btn-danger" data-toggle="modal" data-target="#RecoverPerson">Eliminado/Recuperar?</th>
+    {% endif %}
+    <th scope="row"><button data-id="{{person}}" id="{{person.id_person}}" type="button" class="btn allbuttons btn-warning" data-toggle="modal" data-target="#editPersonModal"><i class="fa fa-edit" style="font-size:24px"></i></button></th>
+  </tbody>
+  {% endfor %}
+  {% endif %}
+</table>
+{% if all_people == [] %}
+<div id=tableHead class="alert alert-success"> Aun no has agregado ninguna persona</div>
+{% endif %}
+
+<!-- Modal 2 (personal info)-->
+<div class="modal fade bd-example-modal-lg" id="editPersonModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">EDITAR INFORMACION PERSONA</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col" style="text-align: center;">
+              <form method="POST" action="{{url_for('Get_all_people')}}">
+                <li><input id="editPersonId" name="id2" type="hidden"></li>
+                <li>Nombre</li>
+                <li><input id="name" name="name2" placeholder="Nombre" required></li>
+                <li>Apellido</li>
+                <li><input id="surname" name="surname2" placeholder="Apellido" required></li>
+                <li>Telefono</li>
+                <li><input id="cellphone" name="cellphone2" placeholder="Telefono"></input></li>
+                <li>Mail</li>
+                <li><input id="mail" name="mail2" placeholder="Mail"></input></li>
+                <li>Direccion</li>
+                <li><input id="address" name="address2" placeholder="Direccion"></input></li>
+                <li>DNI</li>
+                <li><input id="dni" name="dni2" placeholder="DNI" required></input></li>
+              </div>
+              <div class="modal-footer">
+                <input style="margin-right: 430px; margin-top: 20px;" class="btn btn-primary" type="submit" id="send-signup" name="signup" value="Modificar"/>
+              </form>
+              <button style="margin-right: 70px; margin-top: 20px" type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOR UPDATE ALREADY EXIST VALUE IN PERSON TABLE -->
+<div class="modal" tabindex="-1" role="dialog" id="RecoverPerson">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Recuperar persona</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{url_for('Get_all_people')}}">
+          <p>Estas seguro que queres recuperar esta persona?</p>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" id="idPersonRecover" name="RecoverPersonById" value={{idPersonRecover}}>
+          <input class="btn btn-primary" type="submit" value="Recuperar"/>
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL FOR UPDATE STILL EXIST (DELETE) VALUE IN TENANT THING TO PAY TABLE -->
+<div class="modal" id="DeletePerson" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Eliminar persona</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{url_for('Get_all_people')}}">
+          <p>Estas seguro que queres eliminar esta persona?</p>
+        </div>
+        <div class="modal-footer">
+          <li><input type="hidden" id="idPersonDelete" name="DeletePersonById" value={{idPersonDelete}}></li>
+          <input value="SI" class="btn btn-primary" type="submit">
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script type="text/javascript">       
+    $(".allbuttons").click(function () {
+      var id = $(this).attr('id');
+      var requiredData = document.getElementById(id).getAttribute("data-id")
+      var tenant = requiredData.replace(/'/g,'"')
+      var object = JSON.parse(tenant)
+      $("#DeletePerson #idPersonDelete").val(object.id_person)
+      $("#RecoverPerson #idPersonRecover").val(object.id_person)
+      $("#editPersonModal #editPersonId").val(object.id_person)
+      $("#editPersonModal #name").val(object.name)
+      $("#editPersonModal #surname").val(object.surname)
+      $("#editPersonModal #cellphone").val(object.cellphone)
+      $("#editPersonModal #mail").val(object.mail)
+      $("#editPersonModal #address").val(object.address)
+      $("#editPersonModal #dni").val(object.dni) 
+    });
+
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#ServiceProvidersTable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+
+    $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+
+    $(document).ready(function() {
+    $('#myAlert2').fadeIn();
+    setTimeout(function() {
+      $('#myAlert2').fadeOut();
+    }, 20000); // 20 seconds
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Import bootstrap cdn -->
+  <link rel="stylesheet" href=
+  "https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+  integrity=
+  "sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+  crossorigin="anonymous">
+  <!-- Import jquery cdn -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity=
+  "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+  crossorigin="anonymous">
+</script>      
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script>
+</head>
+{% extends 'base.html' %}
+{% block title %}
+Todos los inquilinos
+{% endblock %}
+{% block body %}
+
+{% if resultado %}
+<div id="myAlert" class="alert alert-primary" role="alert">
+  <strong>{{resultado}}</strong>
+</div>
+{% endif %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<form class="formSelect" method="POST" action="{{url_for('AddOrDeletePerson')}}">
+<div id=tableHead class="alert alert-info"> INQUILINOS
+      <input value="addTenant" name="addTenant" type="hidden">
+        <input id="AddTask" class="btn btn-secondary btn-lg" value="AGREGAR" type="submit">
+        </form>
+</div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col"> NOMBRE Y APELLIDO </th>
+      <th scope="col"> NOMENCLATURA ALQUILER </th>
+      <th scope="col"> DIRECCION </th>    
+      <th scope="col"> FECHA ENTRADA </th>
+      <th scope="col"> FECHA SALIDA </th>
+      <th scope="col"> ESTADO </th>
+      <th scope="col"> MAS INFO</th>
+    </tr>
+  </thead>
+  {% for tenant in current_tenants %}
+  <tbody id="myTable">
+    <tr>
+      <th scope="row"> {{ tenant.name }} {{ tenant.surname }} </th>
+      <th scope="row"> {{ tenant.nomenclatura }} </th>
+      <th scope="row"> {{ tenant.street }} {{ tenant.number }}, {{ tenant.state }} </th>
+      <th scope="row"> {{ tenant.entry_date }} </th>
+      <th scope="row"> {{ tenant.exit_date }} </th>
+      {% if tenant.exit_date=='-' %}
+      <th scope="row"><button data-id="{{tenant}}" id="{{tenant.id_tenant_permanency}}" type="button" class="btn EndTenantPermanency btn-primary" data-toggle="modal" data-target="#EndTenantPermanency">Alquilando</button></th>
+      {% else %} 
+      <th scope="row"><button data-id="{{tenant}}" id="{{tenant.id_tenant_permanency}}" type="button" class="btn RestartTenantPermanency btn-danger" data-toggle="modal" data-target="#RestartTenantPermanency">Finalizado</th>
+        {% endif %}
+        <th scope="row"><button data-id="{{tenant}}" id="{{tenant.id_tenant_permanency}}" type="button" class="btn btnmasinfo btn-info" data-toggle="modal" data-target="#Modal1" ><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+      </tbody>
+      {% endfor %}
+    </table> 
+    {% if current_tenants == [] %}
+    <div id=tableHead class="alert alert-success">Aun no hay registros</div>
+    {% endif %}
+
+    <!-- Modal 1 -->
+    <div class="modal fade bd-example-modal-lg" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">INFORMACION ADICIONAL</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <h5>DATOS PERSONALES</h5>
+                  <br>
+                  <li>Nombre<p id="name"></p></li>
+                  <li>Apellido<p id="surname"></p></li>
+                  <li>Telefono<p id="cellphone"></p></li>
+                  <li>Mail<p id="mail"></p></li>
+                  <li>Direccion<p id="address"></p></li>
+                  <li>DNI<p id="dni"></p></li>
+                </div>
+                <div class="col">
+                  <h5>DATOS PROPIEDAD</h5>
+                  <br>
+                  <li>Nomenclatura<p id="nomenclatura"></p></li>
+                  <li>Ciudad<p id="city"></p></li>
+                  <li>Provincia<p id="state"></p></li>
+                  <li>Barrio<p id="neighborhood"></p></li>
+                  <li>Calle<p id="street"></p></li>
+                  <li>Numero<p id="number"></p></li>
+                  <li>Piso<p id="floor"></p></li>
+                  <li>Codigo postal<p id="postal-code"></p></li>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- MODAL FOR END TENANT PERMANENCY -->
+<div class="modal" id="EndTenantPermanency" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Finalizar alquiler</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{url_for('Get_all_tenants')}}">
+          <p>Estas seguro que queres finalizar el contrato de alquiler de esta persona?</p>
+        </div>
+        <div class="modal-footer">
+          <li><input type="hidden" id="id_tenant_permanency" name="id_tenant_permanency_end" value={{id_tenant_permanency}}></li>
+          <input value="SI" class="btn btn-primary" type="submit">
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOR REACTIVATE TENANT PERMANENCY -->
+<div class="modal" id="RestartTenantPermanency" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Reactivar alquiler</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{url_for('Get_all_tenants')}}">
+          <p>Estas seguro que queres reactivar el contrato de alquiler de esta persona?</p>
+        </div>
+        <div class="modal-footer">
+          <li><input type="hidden" id="id_tenant_permanency" name="id_tenant_permanency_restart" value={{id_tenant_permanency}}></li>
+          <input value="SI" class="btn btn-primary" type="submit">
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">       
+  $(".btnmasinfo").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    $(".modal #name").html(object.name)
+    $(".modal #surname").html(object.surname)
+    $(".modal #cellphone").html(object.cellphone)
+    $(".modal #mail").html(object.mail)
+    $(".modal #address").html(object.address)
+    $(".modal #dni").html(object.dni)
+    $(".modal #nomenclatura").html(object.nomenclatura)
+    $(".modal #state").html(object.state)
+    $(".modal #city").html(object.city)
+    $(".modal #neighborhood").html(object.neighborhood)
+    $(".modal #street").html(object.street)
+    $(".modal #number").html(object.number)
+    $(".modal #floor").html(object.floor)
+    $(".modal #postal-code").html(object.postal_code)            
+  });
+
+  $(".EndTenantPermanency").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    $("#EndTenantPermanency #id_tenant_permanency").val(object.id_tenant_permanency)
+  });
+
+  $(".RestartTenantPermanency").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    $("#RestartTenantPermanency #id_tenant_permanency").val(object.id_tenant_permanency)
+  });
+
+  $(document).ready(function(){
+    $("#myInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#myTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+
+   $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+</script>
+{% endblock %}

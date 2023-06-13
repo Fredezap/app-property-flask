@@ -1,0 +1,60 @@
+<!doctype html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+    <title>
+        Asignando proveedor de servicio
+    </title>
+</head>
+<body class="otherBodys">
+    {{id_service_task2}}
+    {{id_service_task}}
+    {% if id_grant_of_service_task %}
+    <div class="SquereSelectorAssignServiceProvider">
+        <div class="headerForm">Elegi a quien designarle la tarea</div>
+        <div>
+            {% if All_service_providers_matching_id == [] %}
+            <p style="font-weight: bold; color: lightyellow; margin-left: -400px; margin-top: 60px">Aun no has agregado <br> prestadores de servicio</p>
+            <form method="POST" action="{{url_for('AddOrDeletePerson')}}">
+                <input name="addServiceProvider" style="margin-top: -180px; margin-left: 350px;" type="submit" class="btn btn-success btn-lg" value="AGREGAR PRESTADOR SERVICIO">
+            </form>
+            <a href="{{url_for('Index')}}"><button style="margin-top: -20px; margin-left: 350px;" class="btn btn-dark btn-lg">VOLVER AL INICIO</button></a>
+            {% else %}
+            <form method="POST" action="{{url_for('Index')}}">
+                <select style="height:45px" name="AssignServiceProvider" id="select" required>
+                    {% for data in All_service_providers_matching_id %}
+                    <option value="{{id_grant_of_service_task}} , {{data.id_is_service_provider}}">{{data.name}} {{data.surname}}</option>
+                    {% endfor %}
+                    <input id="AssignServiceProviderAceptButton" value="ACEPTAR" class="btn btn-info btn-lg active" type="submit">
+                </select>
+            </form>
+            <a href="{{url_for('Index')}}"><button id="AssignServiceProviderCancellButton" class="btn btn-dark btn-lg">CANCELAR</button>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {% if id_grant_of_service_task2 %}
+    <div class="SquereSelectorAssignServiceProvider">
+        <div class="headerForm">Elegi a quien designarle la tarea</div>
+        <div>
+            {% if All_service_providers_matching_id == [] %}
+            <p style="font-weight: bold; color: lightyellow; margin-left: -400px; margin-top: 60px">Aun no has agregado <br> prestadores de servicio</p>
+            <form method="POST" action="{{url_for('AddOrDeletePerson')}}">
+                <input name="addServiceProvider" style="margin-top: -180px; margin-left: 350px;" type="submit" class="btn btn-success btn-lg" value="AGREGAR PRESTADOR SERVICIO">
+            </form>
+            <a href="{{url_for('Get_all_service_providers_tasks')}}"><button style="margin-top: -20px; margin-left: 350px;" class="btn btn-dark btn-lg">VOLVER A PRESTADORES DE SERVICIO</button></a>
+            {% else %}
+            <form method="POST" action="{{url_for('Get_all_service_providers_tasks')}}">
+                <select style="height:45px" name="AssignServiceProvider" id="select" required>
+                    {% for data in All_service_providers_matching_id %}
+                    <option value="{{id_grant_of_service_task2}} , {{data.id_is_service_provider}}">{{data.name}} {{data.surname}}</option>
+                    {% endfor %}
+                    <input id="AssignServiceProviderAceptButton" value="ACEPTAR" class="btn btn-info btn-lg active" type="submit">
+                </select>
+            </form>
+            <a href="{{url_for('Get_all_service_providers_tasks')}}"><button id="AssignServiceProviderCancellButton" class="btn btn-dark btn-lg">CANCELAR</button>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    </body>

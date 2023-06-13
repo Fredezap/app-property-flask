@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='Get_all_owners.css')}}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  </head>
+{% extends 'base.html' %}
+ {% block title %}
+  Todos los propietarios
+ {% endblock %}
+ {% block body %}
+ <!-- TABLE FOR TENANTS TASKS -->
+<br><br>
+{% if result %}
+<div class="alert alert-success">
+  <strong>{{result}}</strong>
+</div>
+{% endif %}
+{% if result2 %}
+<div class="alert alert-success">
+  <strong>
+    {{result2}}
+    <form method="POST" action="{{url_for('Get_all_owners')}}">
+      <input id="AddTask" name="id_is_owner_recover" value="{{resultado}}" >
+      <input type="submit" value="SI" class="btn btn-secondary btn-lg">
+      </form>
+      <a href="{{url_for('Get_all_owners')}}" style="cursor: pointer"><button type="button" class="btn btn-secondary btn-lg">NO</button></a>
+  </strong>
+</div>
+{% endif %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info"> PROPIETARIOS ASOCIADOS A UNA PROPIEDAD
+    <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#ModalAddOwner">ASOCIAR PROPIETARIO/PROPIEDAD</button></th>
+</div>
+  <br>
+  <table id="myTable" class="table table-light" style="align-items: center; text-align: center">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col"> NOMBRE Y <br> APELLIDO </th>
+        <th scope="col"> DNI </th>
+        <th scope="col"> NOMENCLATURA </th>
+        <th scope="col"> PROVINCIA </th>
+        <th scope="col"> CIUDAD </th>
+        <th scope="col"> DIRECCION </th>
+        <th scope="col"> MAS INFO </th>
+        <th scope="col"> ELIMINAR </th>
+      </tr>
+    </thead>
+    {% for owner in current_owners %}
+    {% if owner.already_exist_is_owner == 1 %}
+    <tbody>
+      <tr>
+        <th scope="row"> {{ owner.name }} {{ owner.surname }} </th>
+        <th scope="row"> {{ owner.dni }} </th>
+        <th scope="row"> {{ owner.nomenclatura }} </th>
+        <th scope="row"> {{ owner.state }} </th>
+        <th scope="row"> {{ owner.city }} </th>
+        <th scope="row"> {{ owner.street }} {{ owner.number }}, {{ owner.state }} </th>
+        <th scope="row"><button data-id="{{owner}}" id="{{owner.id_is_owner}}" type="button" class="btn btnmoreinfo btn-info" data-toggle="modal" data-target="#ModalMoreInfo"><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+        <th scope="row"><button data-id="{{owner}}" id="{{owner.id_is_owner}}" type="button" class="btn deleteOwner btn-danger" data-toggle="modal" data-target="#ModaldeleteOwner" ><i class="fa fa-trash" style="font-size:24px"></i></button></th>
+    </tbody>
+    {% endif %}
+    {% endfor %}
+  </table>
+{% if check_already_exist == [] %}
+<div id=tableHead class="alert alert-success">Aun no hay registros</div>
+{% endif %}
+
+<!-- Modal ModalMoreInfo owners -->
+<div class="modal fade bd-example-modal-lg" id="ModalMoreInfo" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">INFORMACION ADICIONAL</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS PERSONALES</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>DNI<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS PROPIEDAD</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Ciudad<p id="city"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal-code"></p></li>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Tenant Rent -->
+<div class="modal fade bd-example-modal-xl" id="ModalAddOwner" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="margin-left: 10px" class="modal-title" id="exampleModalLabel">VINCULAR UN PROPIETARIO CON UNA PROPIEDAD
+         <a href="{{url_for(Get_all_is_owner_deleted)}}"> <button style="margin-left: 240px" type="button" class="btn btn-dark btn-lg">RECUPERAR REGISTRO ELIMINADO</button></a></h5>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+          <div class="col">
+              <form class="formSelect" method="POST" action="{{url_for('Get_all_owners')}}">
+                <li>Elegi un propietario</li>
+                {% if owners_and_more == [] %}
+              <li style="color: black;">No hay propietarios disponibles</li>
+              <br><br><br><br>
+                {% else %}
+            <select class="select" style="height:45px" name="AddIsOwnerPerson">
+                {% for owner in owners_and_more %}
+                <option name="id_person" value="{{owner.id_person}}">{{owner.name}} {{owner.surname}}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <li>Elegi una propiedad</li>
+            <!-- ACTIVAR UN BUSCADOR -->
+            <!-- <input class="form-control" id="ModalAddTask" type="text" placeholder="Buscar.."> -->
+            {% if available_propertys == [] %}
+            <li style="color: black;">No hay propiedades disponibles</li>
+            {% else %}
+            <select class="select" style="height:45px" name="AddIsOwnerProperty">
+                {% for property in available_propertys %}
+                <option name="id_property" value="{{property.id_property}}">{{property.street}} {{property.number}}, {{property.state}} - Nomenclarutra: {{property.nomenclatura}}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <div class="modal-footer">
+            <input style="margin-right: 265px;" value="ACEPTAR" class="btn btn-primary" type="submit">
+          </form>    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">CERRAR</button>
+          </div>
+          </div>
+           <div class="col">
+            <form class="formSelect" method="POST" action="{{url_for('AddOrDeletePerson')}}">
+            <input style="margin-top: 55px" value="AGREGAR PERSONA(PROPIETARIO)" type="submit" class="btn btn-info active">
+            <br>
+            <input value="AddOwner" name="AddOwner">
+            </form>
+            <form class="formSelect" method="POST" action="{{url_for('AddOrDeleteProperty')}}">
+            <input style="margin-top: 130px" value="AGREGAR PROPIEDAD" type="submit" class="btn btn-info active">
+             <br>
+            <input value="AddProperty" name="AddProperty">
+            </form>
+          </div>
+        </div>          
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL FOR UPDATE STILL EXIST (RECOVER) VALUE IN PROPERTY TABLE -->
+<div class="modal" id="ModaldeleteOwner" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Eliminar registro propietario/propiedad</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{url_for('Get_all_owners')}}">
+        <p>Estas seguro que queres eliminar este registro?</p>
+      </div>
+      <div class="modal-footer">
+          <li><input id="id_is_owner_delete" name="id_is_owner_delete"></li>
+        <input value="SI" class="btn btn-primary" type="submit">
+      </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">       
+  $(".btnmoreinfo").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    console.log(object)
+    $("#ModalMoreInfo #name").html(object.name)
+    $("#ModalMoreInfo #surname").html(object.surname)
+    $("#ModalMoreInfo #cellphone").html(object.cellphone)
+    $("#ModalMoreInfo #mail").html(object.mail)
+    $("#ModalMoreInfo #address").html(object.address)
+    $("#ModalMoreInfo #dni").html(object.dni)
+    $("#ModalMoreInfo #nomenclatura").html(object.nomenclatura)
+    $("#ModalMoreInfo #state").html(object.state)
+    $("#ModalMoreInfo #city").html(object.city)
+    $("#ModalMoreInfo #neighborhood").html(object.neighborhood)
+    $("#ModalMoreInfo #street").html(object.street)
+    $("#ModalMoreInfo #number").html(object.number)
+    $("#ModalMoreInfo #floor").html(object.floor)
+    $("#ModalMoreInfo #postal-code").html(object.postal_code)
+
+  });
+
+$(".deleteOwner").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant = requiredData.replace(/'/g,'"')
+    var object = JSON.parse(tenant)
+    $("#ModaldeleteOwner #id_is_owner_delete").val(object.id_is_owner)
+  });
+
+  $(document).ready(function(){
+    $("#myInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#myTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+</script>
+ {% endblock %}

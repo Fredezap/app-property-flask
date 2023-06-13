@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Import jquery cdn -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>      
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script>
+</head>
+{% extends 'base.html' %}
+{% block title %}
+Todas las tareas inquilinos
+{% endblock %}
+{% block body %}
+
+<!-- TABLE FOR TENANTS TASKS -->
+{% if result %}
+    <div id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+<input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info"> TAREAS INQUILINOS
+  <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTenantTask">AGREGAR TAREA</button></th>
+</div>
+<table id="TenantTasksTable" class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col"> NOMBRE DEL <br> SERVICIO A PAGAR </th>
+      <th scope="col"> NOMBRE DEL <br> INQUILINO </th>
+      <th scope="col"> NOMENCLATURA DE <br> LA PROPIEDAD </th>
+      <th scope="col"> DIRECCION DE <br> LA PROPIEDAD </th> 
+      <th scope="col"> PAGO </th>
+      <th scope="col"> MAS <br> INFO </th>
+    </tr>
+  </thead>
+  {% for task in All_tenant_tasks %}
+  <tbody id="TenantTasksTable">
+    <tr  style="vertical-align: middle;">
+    <th scope="row"> {{ task.name_of_thing }} </th>
+    <th scope="row"> {{ task.name }} {{ task.surname }} </th>
+    <th scope="row"> {{ task.nomenclatura }} </th>
+    <th scope="row"> {{ task.street }} {{ task.number }}, {{ task.state }} </th>
+    <th scope="row">
+     {% if task.payment_date == '-' %}
+     <form method="POST" action="{{url_for('End_task')}}">
+      <li><input name="id_tenant_payment2" value="{{task.id_tenant_payment}}" type="hidden"></li>
+      <input class="btn btn-warning" type="submit" name="signup" value="Pendiente/Pagar"/>
+    </form>
+    {% else %}
+    <button data-id="{{task}}" id="{{task.id_tenant_payment}}" type="button" class="btn btnInfo btn-success" data-toggle="modal" data-target="#ModalPaymentDone">Realizado/Detalle</button>
+    {% endif %}
+    </th>
+    <th scope="row"><button data-id="{{task}}" id="{{task.id_tenant_payment}}" type="button" class="btn btnInfo btn-info" data-toggle="modal" data-target="#ModalInfoTenants"><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+  </tr>    
+  </tbody>
+  {% endfor %}
+</table> 
+{% if All_tenant_tasks == [] %}
+<div id=tableHead class="alert alert-success"> No hay tareas pendientes </div>
+{% endif %}
+
+<!-- Modal Add Task Tenant -->
+<div class="modal fade bd-example-modal-xl" id="AddTenantTask" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+ <div class="modal-dialog modal-xl">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">INGRESAR EL DETALLE DE LA TAREA A ASIGNAR</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col">
+            <form class="formSelect" method="POST" action="{{url_for('Get_all_tenant_tasks')}}">
+              <li>Elegi servicio a pagar</li>
+              {% if All_tenant_things_to_pay == [] %}
+              <li style="color: black;">No hay servicios disponibles</li>
+              <br><br><br><br>
+              {% else %}
+              <select class="select" style="height:45px" name="AddTaskTenantIdThingToPay" required>
+                {% for thing in All_tenant_things_to_pay %}
+                <option value="{{thing.id_tenant_thing_to_pay}}">{{thing.name_of_thing}}</option>
+                {% endfor %}
+              </select>
+              {% endif %}
+              <li>Elegi un inquilino</li>
+              {% if All_current_tenants == [] %}
+              <li style="color: black;">No hay inquilinos disponibles</li>
+              {% else %}
+            
+              <select class="select" style="height:45px" name="AddTaskGetIdTenantPermanency" required>
+                {% for tenant in All_current_tenants %}
+                {% if tenant.exit_date == "-" %}
+                <option value="{{tenant.id_tenant_permanency}}"> {{tenant.name}} {{tenant.surname}} --> {{tenant.street}} {{tenant.number}}, {{tenant.state}}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              {% endif %}
+              <br><br><br><br>
+              <input name="AddTaskTenantcbu" placeholder="CBU">
+              <input name="AddTaskTenantAmount" placeholder="Monto">
+              <input name="AddTaskTenantDetail" placeholder="Detalle">
+              <div class="modal-footer">
+               <input id="AddTaskServiceProviderAcceptButton" style="float: left;" value="ACEPTAR" class="btn btn-info active" type="submit">
+             </form>    
+             <button style="margin-top: -40px" type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+           </div>
+         </div>
+         <div class="col">
+          <form method="POST" action="{{url_for('Add_or_delete_tenant_thing_to_pay')}}">  
+           <input style="margin-top: 55px" class="btn btn-info active" type="submit" value="AGREGAR SERVICIO INQUILINO"></form>
+           <form method="POST" action="{{url_for('AddOrDeletePerson')}}">  
+             <input type="hidden" value="addTenant" name="addTenant">
+             <input style="margin-top: 115px" class="btn btn-info active" type="submit" value="AGREGAR INQUILINO"></form>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+</div>
+</div>
+
+<!-- Modal Info tenants -->
+<div class="modal fade bd-example-modal-lg" id="ModalInfoTenants" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">DETALLES TAREA</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS DEL INQUILINO</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>Dni<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS DE LA PROPIEDAD DONDE VIVE EL INQUILINO</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Ciudad<p id="city"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal_code"></p></li>
+            </div>
+            <div class="modal-footer">
+              <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Info tenants -->
+<div class="modal fade bd-example-modal-lg" id="ModalPaymentDone" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <h5 style="text-align: center;">DETALLES DEL PAGO</h5>
+                <br>
+                <li>Nombre servicio<p id="service_name"></p></li>
+                <li>Detalle<p id="detail"></p></li>
+                <li>cbu<p id="cbu"></p></li>
+                <li>Monto<p id="amount"></p></li>
+                <li>Fecha<p id="payment_date"></p></li>
+              </div>
+              <div class="modal-footer">
+                <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+   $(".btnInfo").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant1 = requiredData.replace(/'/g,'"')
+    var tenant2 = tenant1.replace(/None/g,'"-"')
+    var object = JSON.parse(tenant2)
+    $("#ModalInfoTenants #name").html(object.name)
+    $("#ModalInfoTenants #surname").html(object.surname)
+    $("#ModalInfoTenants #cellphone").html(object.cellphone)
+    $("#ModalInfoTenants #mail").html(object.mail)
+    $("#ModalInfoTenants #address").html(object.address)
+    $("#ModalInfoTenants #dni").html(object.dni)
+    $("#ModalInfoTenants #name_of_thing").html(object.name_of_thing)
+    $("#ModalInfoTenants #description").html(object.description)
+    $("#ModalInfoTenants #nomenclatura").html(object.nomenclatura)
+    $("#ModalInfoTenants #city").html(object.city)
+    $("#ModalInfoTenants #state").html(object.state)
+    $("#ModalInfoTenants #neighborhood").html(object.neighborhood)
+    $("#ModalInfoTenants #street").html(object.street)
+    $("#ModalInfoTenants #number").html(object.number)
+    $("#ModalInfoTenants #floor").html(object.floor)
+    $("#ModalInfoTenants #postal_code").html(object.postal_code)
+    $("#ModalPaymentDone #service_name").html(object.name_of_thing)
+    $("#ModalPaymentDone #detail").html(object.detail)
+    $("#ModalPaymentDone #cbu").html(object.cbu)
+    $("#ModalPaymentDone #amount").html(object.amount)
+    $("#ModalPaymentDone #payment_date").html(object.payment_date)
+  });
+
+   $(document).ready(function(){
+    $("#myInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#TenantTasksTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+
+     $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+</script>
+{% endblock %}

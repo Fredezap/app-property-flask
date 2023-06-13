@@ -1,0 +1,52 @@
+<!doctype html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+    <title>
+        Finalizar tarea
+    </title>
+</head>
+{% if id_tenant_payment %}
+<body class="otherBodys">
+    <div class="squereSelector">
+        <div class="headerForm">Ingresa los detalles del pago</div>
+        <div>
+            <form id="EndTaskServiceProviderForm" method="POST" action="{{url_for('Index')}}">
+                <li><input name="id_tenant_payment" value={{id_tenant_payment}} type="hidden"></li>
+                <li>Cbu</li>
+                <li><input name="cbu" placeholder="cbu" value="{{cbu}}"></li>
+                <li>Monto</li>
+                <li><input name="amount" required-type="number" placeholder="monto" value="{{amount}}" required></li>
+                <li>Detalle</li>
+                <li><input style="margin-bottom: 40px" name="detail" placeholder="detalle" value="{{detail}}"></input></li>
+                <input id="EndTaskServiceProviderAceptButton" value="ACEPTAR" class="btn btn-info btn-lg active" type="submit">
+            </form>
+            <form action="{{url_for('Index')}}">
+                <input id="EndTaskServiceProviderCancelButton" type="submit" class="btn btn-dark btn-lg" value="CANCELAR">
+            </form>
+        </div>
+    </div>
+</body>
+{% endif %}
+{% if id_tenant_payment2 %}
+<body class="otherBodys">
+    <div class="squereSelector">
+        <div class="headerForm">Ingresa los detalles del pago</div>
+        <div>
+            <form id="EndTaskServiceProviderForm" method="POST" action="{{url_for('Get_all_tenant_tasks')}}">
+                <li><input name="id_tenant_payment2" value={{id_tenant_payment2}} type="hidden"></li>
+                <li>Cbu</li>
+                <li><input name="cbu" placeholder="cbu" value="{{cbu}}"></li>
+                <li>Monto</li>
+                <li><input name="amount" required-type="number" placeholder="monto" value="{{amount}}" required></li>
+                <li>Detalle</li>
+                <li><input style="margin-bottom: 40px" name="detail" placeholder="detalle" value="{{detail}}"></input></li>
+                <input id="EndTaskServiceProviderAceptButton" value="ACEPTAR" class="btn btn-info btn-lg active" type="submit">
+            </form>
+            <form action="{{url_for('Get_all_tenant_tasks')}}">
+                <input id="EndTaskServiceProviderCancelButton" type="submit" class="btn btn-dark btn-lg" value="CANCELAR">
+            </form>
+        </div>
+    </div>
+</body>
+{% endif %}

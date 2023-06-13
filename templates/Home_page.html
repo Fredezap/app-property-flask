@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Import jquery cdn -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+    <script src=
+    "https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+    integrity=
+    "sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+    crossorigin="anonymous">
+    </script>
+</head>
+{% extends 'base.html' %}
+ {% block title %}
+ 	Home page
+ {% endblock %}
+ {% block body %}
+<!-- TABLE FOR SERVICE PROVIDER TASKS -->
+{% if result %}
+    <div style="padding-top: 40px;" id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+  </div>
+{% endif %}
+<input class="form-control" id="myInput1" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info">TAREAS PRESTADORES DE SERVICIO
+    <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTaskServiceProvider" >AGREGAR TAREA</button></th>
+</div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col" style="vertical-align: middle;"> SERVICIO </th>
+      <th scope="col"> NOMBRE Y <br> APELLIDO </th>
+      <th scope="col"> DIRECCION DONDE <br> REALIZAR SERVICIO</th>    
+      <th scope="col"> TAREA ASIGNADA <br> / NO ASIGNADA </th>
+      <th scope="col" style="vertical-align:middle;"> PAGO </th>
+    </tr>
+  </thead>
+  {% for task in All_tasks_service_providers %}
+  <tbody id="ServiceProvidersTable">
+    <tr>
+    {% if task.payment_date == '-' %}
+      <th scope="row"> {{ task.service_name }}</th>
+        {% if task.name == None %}
+        <th scope="row"> - </th>
+        {% else %}
+        <th scope="row"> {{ task.name }} {{ task.surname }} </th>
+        {% endif %}
+      <th scope="row"> {{ task.street }} {{ task.number }}, {{ task.state }} </th>
+        {% if task.id_is_service_provider == None %}
+            <th scope="row">
+                <form method="POST" action="{{url_for('Assign_service_provider')}}">
+                    <li><input name="id_grant_of_service_task" value="{{task.id_grant_of_service}}" type="hidden"/></li>
+                    <li><input name="id_service_task" value="{{task.id_service}}" type="hidden"/></li>
+                    <input class="btn btn-info" type="submit" name="signup" value="Asignar tarea"/>
+                </form>
+            </th>
+        {% else %}
+      <th scope="row"><button data-id="{{task}}" id="{{task.id_grant_of_service}}" type="button" class="btn btnInfoServiceProvider btn-success" data-toggle="modal" data-target="#ModalInfoServiceProvider">Ya asignada</button></th>
+        {% endif %}
+     <th scope="row">
+                <form method="POST" action="{{url_for('End_task')}}">
+                    <li><input name="id_grant_of_service_task3" value="{{task.id_grant_of_service}}" type="hidden"></li>
+                    <input class="btn btn-warning" type="submit" name="signup" value="Pendiente/Pagar"/>
+                </form>
+                 </th>
+    {% endif %}
+    </tr>    
+  </tbody>
+  {% endfor %}
+</table>
+{% if All_tasks_service_providers == [] %}
+<div id=tableHead class="alert alert-success"> No hay tareas pendientes </div>
+{% endif %} 
+
+<!------------ TABLE FOR OWNER TASKS -------------->
+<br><br>
+<span>{{success}}</span>
+<input class="form-control" id="myInput2" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info"> TAREAS PROPIETARIOS 
+    <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTaskServiceOwner" >AGREGAR TAREA</button></th>
+    </div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col"> NOMBRE DEL <br> PROPIETARIO </th>
+      <th scope="col"> NOMENCLATURA DE <br> LA PROPIEDAD </th>
+      <th scope="col"> DIRECCION DE <br> LA PROPIEDAD </th> 
+      <th scope="col" style="vertical-align:middle;"> PAGO </th>
+      <th scope="col"> MAS <br> INFO </th>
+    </tr>
+  </thead>
+  {% for task in All_tasks_owners %}
+  <tbody id="OwnerTasksTable">
+    <tr>
+    {% if task.payment_date == '-' %}
+        <th scope="row"> {{ task.name }} {{ task.surname }} </th>
+        <th scope="row"> {{ task.nomenclatura }} </th>
+        <th scope="row"> {{ task.street }} {{ task.number }}, {{ task.state }} </th>
+            <th scope="row">
+                <form method="POST" action="{{url_for('End_task')}}">
+                    <li><input name="id_payment_to_owner_task" value="{{task.id_payment_to_owner}}" type="hidden"></li>
+                    <input class="btn btn-warning" type="submit" name="signup" value="Pendiente/Pagar"/>
+                </form>
+            </th>
+        <th scope="row"><button data-id="{{task}}" id="{{task.id_payment_to_owner}}" type="button" class="btn btnInfoOwner btn-info" data-toggle="modal" data-target="#ModalInfoOwners"><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+    {% endif %}
+    </tr>    
+  </tbody>
+  {% endfor %}
+</table>
+{% if All_tasks_owners == [] %}
+<div id=tableHead class="alert alert-success"> No hay tareas pendientes </div>
+{% endif %} 
+
+
+<!-- TABLE FOR TENANTS TASKS -->
+<br><br>
+<span>{{success}}</span>
+<input class="form-control" id="myInput3" type="text" placeholder="Buscar..">
+<br>
+<div id=tableHead class="alert alert-info"> TAREAS INQUILINOS
+    <button id="AddTask" type="button" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#AddTaskTenant">AGREGAR TAREA</button></th>
+</div>
+<table class="table table-light" style="align-items: center; text-align: center">
+  <thead class="table-dark">
+    <tr class="ver">
+      <th scope="col" style="vertical-align:middle;"> SERVICIO </th>
+      <th scope="col"> NOMBRE DEL <br> INQUILINO </th>
+      <th scope="col"> NOMENCLATURA DE <br> LA PROPIEDAD </th>
+      <th scope="col"> DIRECCION DE <br> LA PROPIEDAD </th> 
+      <th scope="col" style="vertical-align:middle;"> PAGO </th>
+      <th scope="col"> MAS <br> INFO </th>
+    </tr>
+  </thead>
+  {% for task in All_tenant_tasks %}
+  <tbody id="TenantTasksTable">
+    <tr>
+        {% if task.payment_date == '-' %} 
+        <th scope="row"> {{ task.name_of_thing }} </th>
+        <th scope="row"> {{ task.name }} {{ task.surname }} </th>
+        <th scope="row"> {{ task.nomenclatura }} </th>
+        <th scope="row"> {{ task.street }} {{ task.number }}, {{ task.state }} </th>
+            <th scope="row">
+                <form method="POST" action="{{url_for('End_task')}}">
+                    <li><input name="id_tenant_payment" value="{{task.id_tenant_payment}}" type="hidden"></li>
+                    <input class="btn btn-warning" type="submit" name="signup" value="Pendiente/Pagar">
+                </form>
+            </th>
+        <th scope="row"><button data-id="{{task}}" id="{{task.id_tenant_payment}}" type="button" class="btn btnInfoTenants btn-info" data-toggle="modal" data-target="#ModalInfoTenants"><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>
+        {% endif %}
+    </tr>    
+  </tbody>
+  {% endfor %}
+</table> 
+{% if All_tenant_tasks == [] %}
+<div id=tableHead class="alert alert-success"> No hay tareas pendientes </div>
+{% endif %} 
+
+<!-- Modal 1 -->
+<div class="modal fade bd-example-modal-lg" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">INFORMACION ADICIONAL</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS PERSONALES</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>DNI<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS PROPIEDAD</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal-code"></p></li>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Task Service Provider -->
+<div class="modal fade bd-example-modal-xl" id="AddTaskServiceProvider" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">INGRESAR EL DETALLE DE LA TAREA A ASIGNAR</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <form class="formSelect" method="POST" action="{{url_for('Index')}}">
+                <li>Elegi un servicio</li>
+                {% if All_services == [] %}
+                <h5>No hay servicios disponibles</h5>
+                {% else %}
+            <select class="select" style="height:45px" name="AddTaskGetIdService" required>
+                {% for service in All_services %}
+                <option name="id_service" value="{{service.id_service}}">{{service.service_name}}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <br><br><br>
+             
+            <li>Elegi una propiedad</li>
+            {% if All_propertys == [] %}
+            <h5>No hay propiedades disponibles</h5>
+            {% else %}
+            <select class="select" style="height:45px" name="AddTaskGetIdProperty" required>
+                {% for property in All_propertys %}
+                <option name="id_property" value="{{property.id_property}}">{{property.street}} {{property.number}}, {{property.state}} --> Nomenclarutra: {{property.nomenclatura}}</option>
+                {% endfor %}
+            </select>
+                        {% endif %}
+            <br><br><br><br>
+
+            <input style="margin-left: 20px" name="AddTaskServiceprovidercbu" placeholder="CBU">
+            <input name="AddTaskServiceproviderAmount" placeholder="Monto">
+            <input name="AddTaskServiceproviderDetail" placeholder="Detalle">
+            <div class="modal-footer">
+            <input id="AddTaskServiceProviderAcceptButton" style="margin-right: 550px;" value="ACEPTAR" class="btn btn-info active" type="submit">
+        </form>    
+              <button style="margin-top: -40px" type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+            </div>
+          </div>
+            <div class="col-md-4">
+            <a href="{{url_for('Add_Service')}}"><button style="margin-top: 55px" class="btn btn-info active">AGREGAR SERVICIO</button></a>
+            <a href="{{url_for('Add_property')}}"><button style="margin-top: 115px" class="btn btn-info active">AGREGAR PROPIEDAD</button></a>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal Info service provider -->
+<div class="modal fade bd-example-modal-lg" id="ModalInfoServiceProvider" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">DETALLES TAREA</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS DEL PROVEEDOR DEL SERVICIO</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Servicio que presta<p id="service_name"></p></li>
+              <li>Description<p id="description"></p></li>
+              <li>Matricula<p id="registration_number"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>Dni<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS DE LA PROPIEDAD A REALIZAR SERVICIO</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Ciudad<p id="city"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal_code"></p></li>
+            </div>
+            <div class="modal-footer">
+                <form method="POST" action="{{url_for('Index')}}">
+                    <li><input name="id_grant_of_service_task2" id="id_grant_of_service" type="hidden"/></li>
+                    <li><input name="id_is_service_provider2" value="None" type="hidden"/></li>
+                    <input id="ModalInfoCancellButton" class="btn btn-danger" type="submit" name="signup" value="Dejar de asignar tarea a esta persona"/>
+                </form>
+              <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Info owners -->
+<div class="modal fade bd-example-modal-lg" id="ModalInfoOwners" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">DETALLES TAREA</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS DEL PROPIETARIO</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>Dni<p id="dni"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS DE LA PROPIEDAD DEL DUEÑO</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Ciudad<p id="city"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal_code"></p></li>
+            </div>
+            <div class="modal-footer">
+              <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Task Owner -->
+<div class="modal fade bd-example-modal-xl" id="AddTaskServiceOwner" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">INGRESAR EL DETALLE DE LA TAREA A ASIGNAR</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+            <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col formSelect">
+
+                <li>Elegi un propietario</li>
+            </div>
+            <div class="col">
+                <form method="POST" action="{{url_for('AddOrDeletePerson')}}">  
+           <input type="hidden" value="AddOwner" name="AddOwner">
+           <input style="margin-left: 500px;"  class="btn btn-info active" type="submit" value="AGREGAR PROPIETARIO"></form>
+           </div>
+           {% if All_owners == [] %}
+            <h5>No hay propietarios disponibles</h5>
+            {% else %}
+            <form class="formSelect" method="POST" action="{{url_for('Index')}}">
+            <select class="select" style="height:45px" name="AddTaskOwner" required>
+                {% for owner in All_owners %}
+                <option name="id_is_owner" value="{{owner.id_is_owner}}">{{owner.name}} {{owner.surname}} --> {{owner.street}} {{owner.number}}, {{owner.state}} --> Nomenclarutra: {{owner.nomenclatura}}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+
+            <div style="margin-bottom: 20px; margin-left: 220px; margin-top: 100px;">
+            <input name="AddTaskOwnercbu" placeholder="CBU">
+            <input name="AddTaskOwnerAmount" placeholder="Monto">
+            <input name="AddTaskOwnerDetail" placeholder="Detalle">
+            </div>
+            <div class="modal-footer">
+             <input id="AddTaskServiceProviderAcceptButton" style="margin-left: 100px" value="ACEPTAR" class="btn btn-info active" type="submit">
+            </form>    
+              <button style="margin-left: -450px" type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+<!-- Modal Info tenants -->
+<div class="modal fade bd-example-modal-lg" id="ModalInfoTenants" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">DETALLES TAREA</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <h5>DATOS DEL INQUILINO</h5>
+              <br>
+              <li>Nombre<p id="name"></p></li>
+              <li>Apellido<p id="surname"></p></li>
+              <li>Telefono<p id="cellphone"></p></li>
+              <li>Mail<p id="mail"></p></li>
+              <li>Direccion<p id="address"></p></li>
+              <li>Dni<p id="dni"></p></li>
+              <h5>DATOS DEL SERVICIO A PAGAR</h5>
+              <li>Servicio que presta<p id="name_of_thing"></p></li>
+              <li>Description<p id="description"></p></li>
+            </div>
+            <div class="col">
+              <h5>DATOS DE LA PROPIEDAD DONDE VIVE EL INQUILINO</h5>
+              <br>
+              <li>Nomenclatura<p id="nomenclatura"></p></li>
+              <li>Provincia<p id="state"></p></li>
+              <li>Ciudad<p id="city"></p></li>
+              <li>Barrio<p id="neighborhood"></p></li>
+              <li>Calle<p id="street"></p></li>
+              <li>Numero<p id="number"></p></li>
+              <li>Piso<p id="floor"></p></li>
+              <li>Codigo postal<p id="postal_code"></p></li>
+            </div>
+            <div class="modal-footer">
+              <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Task Tenant -->
+<div class="modal fade bd-example-modal-xl" id="AddTaskTenant" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+ <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">INGRESAR EL DETALLE DE LA TAREA A ASIGNAR</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <form class="formSelect" method="POST" action="{{url_for('Index')}}">
+                <li>Elegi servicio a pagar</li>
+                {% if All_tenant_things_to_pay == [] %}
+            <h5>No hay servicios disponibles</h5>
+            {% else %}
+            <select class="select" style="height:45px" name="AddTaskTenantIdThingToPay" required>
+                {% for thing in All_tenant_things_to_pay %}
+                <option value="{{thing.id_tenant_thing_to_pay}}">{{thing.name_of_thing}}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <br><br><br>
+            <li>Elegi un inquilino</li>
+            {% if All_current_tenants == [] %}
+            <h5>No hay inquilinos disponibles</h5>
+            {% else %}
+            <select class="select" style="height:45px" name="AddTaskGetIdTenantPermanency" required>
+                {% for tenant in All_current_tenants %}
+                    {% if tenant.exit_date == "-" %}
+                <option value="{{tenant.id_tenant_permanency}}"> {{tenant.name}} {{tenant.surname}} --> {{tenant.street}} {{tenant.number}}, {{tenant.state}}</option>
+                    {% endif %}
+                {% endfor %}
+
+            </select>
+            {% endif %}
+            <input style="margin-left: 20px; margin-top: 100px;" name="AddTaskTenantcbu" placeholder="CBU">
+            <input name="AddTaskTenantAmount" placeholder="Monto">
+            <input name="AddTaskTenantDetail" placeholder="Detalle">
+            <div class="modal-footer" style="margin-top:30px">
+            <input id="AddTaskServiceProviderAcceptButton" style="float: left;" value="ACEPTAR" class="btn btn-info active" type="submit">
+            </form>    
+              <button style="margin-top: -40px" type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+          </div>
+      </div>
+              <div class="col-md-4">
+                <a href="{{url_for('Add_or_delete_tenant_thing_to_pay')}}"><button style="margin-top: 55px" class="btn btn-info active">AGREGAR SERVICIO</button></a>
+            <form method="POST" action="{{url_for('AddOrDeletePerson')}}">  
+           <input type="hidden" value="addTenant" name="addTenant">
+           <input style="margin-top: 115px" class="btn btn-info active" type="submit" value="AGREGAR INQUILINO"></form>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript">       
+  $(".btnInfoServiceProvider").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant1 = requiredData.replace(/'/g,'"')
+    var tenant2 = tenant1.replace(/None/g,'"-"')
+    var object = JSON.parse(tenant2)
+    console.log(object)
+    $(".modal #id_grant_of_service").val(object.id_grant_of_service)
+    $(".modal #name").html(object.name)
+    $(".modal #surname").html(object.surname)
+    $(".modal #cellphone").html(object.cellphone)
+    $(".modal #mail").html(object.mail)
+    $(".modal #address").html(object.address)
+    $(".modal #dni").html(object.dni)
+    $(".modal #service_name").html(object.service_name)
+    $(".modal #description").html(object.description)
+    $(".modal #registration_number").html(object.registration_number)
+    $(".modal #nomenclatura").html(object.nomenclatura)
+    $(".modal #state").html(object.state)
+        $(".modal #city").html(object.city)
+    $(".modal #neighborhood").html(object.neighborhood)
+    $(".modal #street").html(object.street)
+    $(".modal #number").html(object.number)
+    $(".modal #floor").html(object.floor)
+    $(".modal #postal_code").html(object.postal_code)
+  });
+
+  $(".btnInfoOwner").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant1 = requiredData.replace(/'/g,'"')
+    var tenant2 = tenant1.replace(/None/g,'"-"')
+    var object = JSON.parse(tenant2)
+    $(".modal #name").html(object.name)
+    $(".modal #surname").html(object.surname)
+    $(".modal #cellphone").html(object.cellphone)
+    $(".modal #mail").html(object.mail)
+    $(".modal #address").html(object.address)
+    $(".modal #dni").html(object.dni)
+    $(".modal #nomenclatura").html(object.nomenclatura)
+    $(".modal #state").html(object.state)
+    $(".modal #city").html(object.city)
+    $(".modal #neighborhood").html(object.neighborhood)
+    $(".modal #street").html(object.street)
+    $(".modal #number").html(object.number)
+    $(".modal #floor").html(object.floor)
+    $(".modal #postal_code").html(object.postal_code)
+  });
+
+  $(".btnInfoTenants").click(function () {
+    var id = $(this).attr('id');
+    var requiredData = document.getElementById(id).getAttribute("data-id")
+    var tenant1 = requiredData.replace(/'/g,'"')
+    var tenant2 = tenant1.replace(/None/g,'"-"')
+    var object = JSON.parse(tenant2)
+    $(".modal #name").html(object.name)
+    $(".modal #surname").html(object.surname)
+    $(".modal #cellphone").html(object.cellphone)
+    $(".modal #mail").html(object.mail)
+    $(".modal #address").html(object.address)
+    $(".modal #dni").html(object.dni)
+    $(".modal #name_of_thing").html(object.name_of_thing)
+    $(".modal #description").html(object.description)
+    $(".modal #nomenclatura").html(object.nomenclatura)
+    $(".modal #city").html(object.city)
+    $(".modal #state").html(object.state)
+    $(".modal #neighborhood").html(object.neighborhood)
+    $(".modal #street").html(object.street)
+    $(".modal #number").html(object.number)
+    $(".modal #floor").html(object.floor)
+    $(".modal #postal_code").html(object.postal_code)
+  });
+
+  $(document).ready(function(){
+    $("#myInput1").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#ServiceProvidersTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+
+  $(document).ready(function(){
+    $("#myInput2").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#OwnerTasksTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+
+  $(document).ready(function(){
+    $("#myInput3").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#TenantTasksTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+
+  $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+</script>
+ {% endblock %}

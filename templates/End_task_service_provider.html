@@ -1,0 +1,62 @@
+<!doctype html>
+<head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+<title>
+    Finalizar tarea
+</title>
+</head>
+<body class="otherBodys">
+{% if result2 %}
+    <div style="margin-top: 100px;" id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result2}}</strong><br><br>
+    <a href="{{url_for('Index')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver al inicio</button></a><br>
+  </div>
+{% endif %}
+{% if result3 %}
+    <div style="margin-top: 100px;" id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result3}}</strong><br><br>
+    <a href="{{url_for('Get_all_service_providers_tasks')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver a proveedores de servicio</button></a><br>
+  </div>
+{% endif %}
+{% if id_grant_of_service_task3 %}
+<div class="squereSelector">
+<div class="headerForm">Ingresa los detalles del pago</div>
+<div>
+    <form id="EndTaskServiceProviderForm" method="POST" action="{{url_for('Index')}}">
+        <li><input name="id_grant_of_service_task" value={{id_grant_of_service_task3}} type="hidden"></li>
+        <li>Cbu</li>
+        <li><input name="cbu" placeholder="cbu" value="{{cbu}}"></li>
+        <li>Monto</li>
+        <li><input name="amount" required-type="number" placeholder="monto" value="{{amount}}" required></li>
+        <li>Detalle</li>
+        <li><input style="margin-bottom: 40px" name="detail" placeholder="detalle" value="{{detail}}"></input></li>
+        <input id="EndTaskServiceProviderAceptButton" value="ACEPTAR" class="btn btn-info btn-lg active" type="submit">
+    </form>
+    <form action="{{url_for('Index')}}">
+    <input id="EndTaskServiceProviderCancelButton" type="submit" class="btn btn-dark btn-lg" value="CANCELAR">
+    </form>
+</div>
+</div>
+{% endif %}
+{% if id_grant_of_service_task4 %}
+<div class="squereSelector">
+<div class="headerForm">Ingresa los detalles del pago</div>
+<div>
+    <form id="EndTaskServiceProviderForm" method="POST" action="{{url_for('Get_all_service_providers_tasks')}}">
+        <li><input name="id_grant_of_service_task" value={{id_grant_of_service_task4}} type="hidden"></li>
+        <li>Cbu</li>
+        <li><input name="cbu" placeholder="cbu" value="{{cbu}}"></li>
+        <li>Monto</li>
+        <li><input name="amount" required-type="number" placeholder="monto" value="{{amount}}" required></li>
+        <li>Detalle</li>
+        <li><input style="margin-bottom: 40px" name="detail" placeholder="detalle" value="{{detail}}"></input></li>
+        <input id="EndTaskServiceProviderAceptButton" value="ACEPTAR" class="btn btn-info btn-lg active" type="submit">
+    </form>
+    <form action="{{url_for('Get_all_service_providers_tasks')}}">
+    <input id="EndTaskServiceProviderCancelButton" type="submit" class="btn btn-dark btn-lg" value="CANCELAR">
+    </form>
+</div>
+</div>
+{% endif %}
+</body>

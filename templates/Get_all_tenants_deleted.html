@@ -1,0 +1,170 @@
+<!doctype html>
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
+  <!-- icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Import bootstrap -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>     
+<script src=
+"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+integrity=
+"sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+crossorigin="anonymous">
+</script> 
+<title>
+  Todos los prestadores de servicio eliminados
+</title>
+</head>
+<!-- TABLE FOR DELETED OWNERS -->
+<body class="otherBodys2">
+    {% if result %}
+    <div id="myAlert" class="alert alert-primary" role="alert">
+    <strong style="font-size: 1.25em;">{{result}}</strong><br><br>
+    <a href="{{url_for('Get_all_service_providers')}}" style="cursor: pointer;"><button type="button" class="btn btn-dark">Volver atras</button></a><br>
+  </div>
+{% endif %}
+{% if current_service_providers %}
+  <input class="form-control" id="myInput" type="text" placeholder="Buscar..">
+  <br>
+  <div id=tableHead class="alert alert-info">PRESTADORES DE SERVICIO ELIMINADOS
+  </div>
+  <table id="myTable" class="table table-light" style="align-items: center; text-align: center">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col"> NOMBRE Y APELLIDO </th>
+        <th scope="col"> SERVICIO QUE PRESTA </th>
+        <th scope="col"> MATRICULA </th>
+        <th scope="col"> MAS INFO </th>
+        <th scope="col"> RECUPERAR </th>
+      </tr>
+    </thead>
+    {% for service_provider in current_service_providers %}
+    {% if service_provider.still_working == 0 %}
+    <tbody>
+      <tr>
+        <th scope="row"> {{ service_provider.name }} {{ service_provider.surname }} </th>
+        <th scope="row"> {{ service_provider.service_name }} </th>
+        <th scope="row"> {{ service_provider.registration_number }} </th>
+        <th scope="row"><button data-id="{{service_provider}}" id="{{service_provider.id_is_service_provider}}" type="button" class="btn btnmoreinfo btn-info" data-toggle="modal" data-target="#ModalMoreInfo"><i class="fa fa-info-circle" style="font-size:24px"></i></button></th>  
+        <th scope="row"><button data-id="{{service_provider}}" id="{{service_provider.id_is_service_provider}}" type="button" class="btn RecoverOwner btn-success" data-toggle="modal" data-target="#ModalRecoverServiceProvider">RECUPERAR</button></th>
+      </tbody>
+      {% endif %}
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% if select_any_not_working_in_service_provider == [] %}
+    <div id=tableHead class="alert alert-success">No hay registros de prestadores de servicio eliminados aun</div>
+    {% endif %}
+
+  <!-- Modal ModalMoreInfo owners -->
+  <div class="modal fade bd-example-modal-lg" id="ModalMoreInfo" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">DETALLES TAREA</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <h5>DATOS DEL PROVEEDOR DEL SERVICIO</h5>
+                <br>
+                <li>Nombre<p id="name"></p></li>
+                <li>Apellido<p id="surname"></p></li>
+                <li>Telefono<p id="cellphone"></p></li>
+                <li>Mail<p id="mail"></p></li>
+                <li>Direccion<p id="address"></p></li>
+                <li>Dni<p id="dni"></p></li>
+              </div>
+              <div class="col">
+                <h5>DATOS DEL SERVICIO QUE PRESTA</h5>
+                <br>
+                <li>Servicio que presta<p id="service_name"></p></li>
+                <li>Description<p id="description"></p></li>
+                <li>Matricula<p id="registration_number"></p></li>
+              </div>
+              <div class="modal-footer">
+                <button id="ModalInfoCloseButton" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FOR UPDATE STILL WORKING (RECOVER) VALUE IN IS_SERVICE_PROVIDER TABLE -->
+  <div class="modal" id="ModalRecoverServiceProvider" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Recuperar prestador de servicio</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{{url_for('Get_all_service_providers_deleted')}}">
+            <p>Estas seguro que queres recuperar este registro?</p>
+          </div>
+          <div class="modal-footer">
+            <li><input id="id_is_service_provider_recover" name="id_is_service_provider_recover" type="hidden"></li>
+            <input value="SI" class="btn btn-primary" type="submit">
+          </form>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script type="text/javascript">       
+      $(".btnmoreinfo").click(function () {
+        var id = $(this).attr('id');
+        var requiredData = document.getElementById(id).getAttribute("data-id")
+        var tenant = requiredData.replace(/'/g,'"')
+        var object = JSON.parse(tenant)
+        console.log(object)
+        $("#ModalMoreInfo #name").html(object.name)
+        $("#ModalMoreInfo #surname").html(object.surname)
+        $("#ModalMoreInfo #cellphone").html(object.cellphone)
+        $("#ModalMoreInfo #mail").html(object.mail)
+        $("#ModalMoreInfo #address").html(object.address)
+        $("#ModalMoreInfo #dni").html(object.dni)
+        $("#ModalMoreInfo #service_name").html(object.service_name)
+        $("#ModalMoreInfo #description").html(object.description)
+        $("#ModalMoreInfo #registration_number").html(object.registration_number)
+
+      });
+
+      $(".RecoverOwner").click(function () {
+        var id = $(this).attr('id');
+        var requiredData = document.getElementById(id).getAttribute("data-id")
+        var tenant = requiredData.replace(/'/g,'"')
+        var object = JSON.parse(tenant)
+        $("#ModalRecoverServiceProvider #id_is_service_provider_recover").val(object.id_is_service_provider)
+      });
+
+      $(document).ready(function(){
+        $("#myInput").on("keyup", function() {
+          var value = $(this).val().toLowerCase();
+          $("#myTable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+          });
+        });
+      });
+
+        $(document).ready(function() {
+    $('#myAlert').fadeIn();
+    setTimeout(function() {
+      $('#myAlert').fadeOut();
+    }, 5000); // 5 seconds
+  });
+    </script>
+  </body>
